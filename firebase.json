@@ -11,7 +11,7 @@
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
     },
     {
-      "public": "dist",
+      "public": ".",
       "site": "ibiza-stage-assessment-respect",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
     }
