@@ -8,3 +8,20 @@ export function shuffleArray(array) {
     [array[i], array[j]] = [array[j], array[i]];
   }
 }
+
+export class MathUtils {
+  public static wrongMove: number;
+  public static correctMove: number;
+  public static duration: number;
+
+  public static calculateScore() {
+    let score = 0;
+    if (MathUtils.correctMove > 0) {
+      score = MathUtils.correctMove / (MathUtils.correctMove + MathUtils.wrongMove) * 100;
+    } else {
+      score = 0;
+    }
+    return score;
+  }
+
+}

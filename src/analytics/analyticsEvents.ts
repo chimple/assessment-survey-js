@@ -4,6 +4,8 @@
 import { qData, answerData } from '../components/questionData';
 import { logEvent } from 'firebase/analytics';
 import { bucket } from '../assessment/bucketData';
+import { AndroidBridge, LevelCompletedEvent } from '../utils/androidBridge';
+import { MathUtils } from '../utils/mathUtils';
 
 // Create a singleton class for the analytics events
 export class AnalyticsEvents {
@@ -278,6 +280,26 @@ export class AnalyticsEvents {
     console.log('Completed App Version: ' + AnalyticsEvents.appVersion);
     console.log('Content Version: ' + AnalyticsEvents.contentVersion);
 
+    console.log('MathUtils.wrongMove: ' + MathUtils.wrongMove);
+    console.log('MathUtils.correctMove: ' + MathUtils.correctMove);
+    console.log("MathUtils.duration: " , Date.now() - MathUtils.duration);
+    const lessonName = AnalyticsEvents.getAppTypeFromDataURL(AnalyticsEvents.dataURL);
+    const lessonScore = MathUtils.calculateScore();
+
+
+    const levelCompletedData: LevelCompletedEvent = {
+      right_moves: MathUtils.wrongMove,
+      wrong_moves: MathUtils.correctMove,
+      success_or_failure: lessonScore > 35 ? "success" : "failure",
+      level_number: lessonName,
+      number_of_successful_puzzles: 0,
+      duration: (Date.now() - MathUtils.duration) / 1000,
+      score: lessonScore
+    };
+
+    AndroidBridge.sendDataToContainer("gameData", levelCompletedData);
+    console.log("Sent level completed data to container:", levelCompletedData);
+    
     AnalyticsEvents.sendDataToThirdParty(score, AnalyticsEvents.uuid);
 
     // Attempt to send the score to the parent curious frame if it exists
