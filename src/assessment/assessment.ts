@@ -9,7 +9,7 @@ import { bucket, bucketItem } from './bucketData';
 import { BaseQuiz } from '../baseQuiz';
 import { fetchAssessmentBuckets } from '../utils/jsonUtils';
 import { TreeNode, sortedArrayToIDsBST } from '../components/tNode';
-import { randFrom, shuffleArray } from '../utils/mathUtils';
+import { MathUtils, randFrom, shuffleArray } from '../utils/mathUtils';
 import { AudioController } from '../components/audioController';
 
 enum searchStage {
@@ -179,6 +179,10 @@ export class Assessment extends BaseQuiz {
   };
 
   public startAssessment = () => {
+    MathUtils.duration = Date.now();
+    MathUtils.wrongMove = 0;
+    MathUtils.correctMove = 0;
+
     UIController.ReadyForNext(this.buildNewQuestion());
     if (this.isInDevMode) {
       this.hideDevModeButton();
@@ -305,8 +309,10 @@ export class Assessment extends BaseQuiz {
     if (this.currentQuestion.answers[answer - 1].answerName == this.currentQuestion.correct) {
       this.currentBucket.numCorrect += 1;
       this.currentBucket.numConsecutiveWrong = 0;
+      MathUtils.correctMove += 1;
       console.log('Answered correctly');
     } else {
+      MathUtils.wrongMove += 1;
       this.currentBucket.numConsecutiveWrong += 1;
       console.log('Answered incorrectly, ' + this.currentBucket.numConsecutiveWrong);
     }
