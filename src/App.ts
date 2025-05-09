@@ -14,6 +14,7 @@ import { getAnalytics, logEvent } from 'firebase/analytics';
 import { Workbox } from 'workbox-window';
 import CacheModel from './components/cacheModel';
 import { UIController } from './ui/uiController';
+import { AndroidBridge } from './utils/androidBridge';
 
 const appVersion: string = 'v1.1.3';
 
@@ -49,11 +50,21 @@ export class App {
 
     // console.log("Data file: " + this.dataURL);
 
+    //checking installedAppInfo
+    console.log('In Assessment Survey App');
+    AndroidBridge.requestInstalledAppInfo()
+      .then((data) => {
+        console.log('isAppInstalled:', data.isAppInstalled);
+      })
+      .catch((err) => {
+        console.error('Error in installedAppInfo promise:', err);
+      });
+
     const firebaseConfig = {
       apiKey: 'AIzaSyB8c2lBVi26u7YRL9sxOP97Uaq3yN8hTl4',
       authDomain: 'ftm-b9d99.firebaseapp.com',
       databaseURL: 'https://ftm-b9d99.firebaseio.com',
-      projectId: 'ftm-b9d99',
+      projectId: 'ftm-b9d99', 
       storageBucket: 'ftm-b9d99.appspot.com',
       messagingSenderId: '602402387941',
       appId: '1:602402387941:web:7b1b1181864d28b49de10c',
