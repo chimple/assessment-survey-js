@@ -14,6 +14,9 @@ import { getAnalytics, logEvent } from 'firebase/analytics';
 import { Workbox } from 'workbox-window';
 import CacheModel from './components/cacheModel';
 import { UIController } from './ui/uiController';
+import { AndroidBridge } from './utils/androidBridge';
+
+declare const window: any;
 
 const appVersion: string = 'v1.1.3';
 
@@ -26,6 +29,11 @@ let contentVersion: string = '';
 let loadingScreen = document.getElementById('loadingScreen');
 const progressBar = document.getElementById('progressBar');
 const broadcastChannel: BroadcastChannel = new BroadcastChannel('as-message-channel');
+
+// Set up Android-to-JS bridge listener on top level
+window.onDataFromAndroid = function (responseJson: string) {
+  AndroidBridge._handleDataFromAndroid(responseJson);
+};
 
 export class App {
   /** Could be 'assessment' or 'survey' based on the data file */
@@ -73,6 +81,23 @@ export class App {
   public async spinUp() {
     window.addEventListener('load', () => {
       console.log('Window Loaded!');
+      console.log('Inside Assessment Survey App');
+
+      if (window.Android?.sendInstalledAppInfoToJS) {
+        console.log("Android bridge is available: sendInstalledAppInfoToJS is ready.");
+      } else {
+        console.warn("Android bridge not available or sendInstalledAppInfoToJS is missing.");
+      }
+
+      AndroidBridge.requestInstalledAppInfo()
+      .then((data) => {
+        console.log("isAppInstalled:", data.isAppInstalled);
+      })
+      .catch((err) => {
+        console.error("Error in installedAppInfo promise:", err);
+      });
+
+
       (async () => {
         await fetchAppData(this.dataURL).then((data) => {
           console.log('Assessment/Survey ' + appVersion + ' initializing!');

@@ -5,6 +5,7 @@ import { logEvent } from 'firebase/analytics';
 interface AndroidBridge {
   sendDataToContainer: (key: string, data: any) => void; // Method to send data to Android container
   requestDataFromContainer: (data: any) => any; // Method to request data from Android container
+  sendInstalledAppInfoToJS: () => void; //New Method to request InstalledApppInfo
   sendAssessmentInfoToJS: () => void; // Method to request assessment data from Android
   sendUserInfoToJS: () => void; // Method to request user information from Android
   // Add more methods as needed for the JavaScript interface from Android
@@ -23,6 +24,7 @@ export interface LevelCompletedEvent {
 declare global {
   interface Window {
     Android?: AndroidBridge;
+    _callbacks: CallbackMap; //_callbacks needs to be global in order to get accesssed by window._callbacks
   }
 }
 
@@ -30,15 +32,17 @@ type CallbackMap = {
   [key: string]: (data: any) => void;
 };
 
-const _callbacks: CallbackMap = {};
+// Assigning with type safety
+window._callbacks = window._callbacks || {};
+const _callbacks: CallbackMap = window._callbacks;
 
 export const AndroidBridge = {
   sendDataToContainer(key: string, data: any) {
     try {
       console.log(`Attempting to send ${key} to container:`, JSON.stringify(data));
-      if (window.Android?.sendDataToContainer) {
+      if (window.Android !== undefined) {
         // Stringify the data before sending to avoid [object Object] issues
-        const jsonData = typeof data === 'object' ? JSON.stringify(data) : data;
+        const jsonData = typeof data === "object" ? JSON.stringify(data) : data;
         window.Android.sendDataToContainer(key, jsonData);
       } else {
         console.warn("Android bridge not available: sendDataToContainer");
@@ -50,11 +54,33 @@ export const AndroidBridge = {
 
   requestDataFromContainer(type: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      if (window.Android?.requestDataFromContainer) {
-        _callbacks[type] = resolve; // Store callback by type
-        window.Android.requestDataFromContainer(type);
-      } else {
-        reject("Android bridge not available");
+      try {
+        console.log(`requesting ${type}`);
+        if (window.Android !== undefined) {
+          _callbacks[type] = resolve; // store callback by type
+          window.Android.requestDataFromContainer(type);
+        } else {
+          reject("Android bridge not available: In requestDataFromContainer");
+        }
+      } catch (error) {
+        reject(error);
+      }
+    });
+  },
+
+    requestInstalledAppInfo(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      try {
+        console.log("Requesting InstalledAppInfo");
+        if (window.Android !== undefined) {
+          _callbacks["installedAppInfo"] = resolve;
+
+          window.Android.sendInstalledAppInfoToJS();
+        } else {
+          reject("Android bridge not available: In requestInstalledAppInfo");
+        }
+      } catch (error) {
+        reject(error);
       }
     });
   },
@@ -62,7 +88,7 @@ export const AndroidBridge = {
   requestAssessmentInfo(): Promise<any> {
     return new Promise((resolve, reject) => {
       try {
-        if (window.Android?.sendAssessmentInfoToJS) {
+        if (window.Android !== undefined) {
           // Store the callback in the _callbacks map
           _callbacks["assessmentInfo"] = resolve;
           
@@ -80,7 +106,7 @@ export const AndroidBridge = {
   requestUserInfo(): Promise<any> {
     return new Promise((resolve, reject) => {
       try {
-        if (window.Android?.sendUserInfoToJS) {
+        if (window.Android !== undefined) {
           // Store the callback in the _callbacks map
           _callbacks["userInfo"] = resolve;
           
@@ -115,6 +141,8 @@ export const AndroidBridge = {
   _handleDataFromAndroid(responseJson: string) {
     try {
       const data = JSON.parse(responseJson);
+      console.log("Data received from Android:", responseJson);
+
       const type = data?.type;
 
       // Handle assessment info specifically
@@ -181,9 +209,4 @@ export const AndroidBridge = {
       console.error("Failed to process user info from Android:", e);
     }
   }
-};
-
-// Add this to the window to allow Android to call _handleDataFromAndroid
-(window as any).handleDataFromAndroid = (responseJson: string) => {
-  AndroidBridge._handleDataFromAndroid(responseJson);
 };
