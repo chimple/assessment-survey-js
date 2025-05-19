@@ -1,11 +1,19 @@
 /** Json Utils */
 
 // import { setFeedbackText } from './uiController';
+import { getDataFile } from './urlUtils';
+
+export const GlobalFlags = {
+  isRespect: false,
+};
 
 export async function fetchAppData(url: string) {
-  return loadData(url).then((data) => {
-    return data;
-  });
+  if (GlobalFlags.isRespect) {
+    const lessonId = getDataFile();
+    const furl = `/data/${lessonId}.json`;
+    return fetch(furl).then((response) => response.json());
+  }
+  return loadData(url).then((data) => data);
 }
 
 export async function fetchAppType(url: string) {
