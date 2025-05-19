@@ -8,7 +8,7 @@ import { Assessment } from './assessment/assessment';
 import { UnityBridge } from './utils/unityBridge';
 import { AnalyticsEvents } from './analytics/analyticsEvents';
 import { BaseQuiz } from './baseQuiz';
-import { fetchAppData, getDataURL } from './utils/jsonUtils';
+import { fetchAppData, getDataURL, GlobalFlags } from './utils/jsonUtils';
 import { initializeApp } from 'firebase/app';
 import { getAnalytics, logEvent } from 'firebase/analytics';
 import { Workbox } from 'workbox-window';
@@ -151,13 +151,39 @@ export class App {
           AnalyticsEvents.sendInit(appVersion, data['contentVersion']);
           // this.cacheModel.setAppName(this.cacheModel.appName + ':' + data["contentVersion"]);
 
-          this.game.Run(this);
+          if (this.game) {
+            this.game.Run(this);
+          }
         });
 
-        await this.registerServiceWorker(this.game, this.dataURL);
+        // --- Respect mode logic here ---
+        if (GlobalFlags.isRespect) {
+          console.warn("--------------------------------Respect mode enabled. Simulating fake loading progress--------------------------------");
+          this.simulateFakeCachingProgress(this.lang);
+        } else {
+          console.log("----------------------------------Respect mode disabled. Registering Workbox----------------------------------");
+          await this.registerServiceWorker(this.game, this.dataURL);
+        }
       })();
     });
   }
+
+private simulateFakeCachingProgress(lang: string) {
+  const bookName = getDataFile();
+  const steps = [25, 50, 75, 100];
+  steps.forEach((val, i) => {
+    setTimeout(() => {
+      handleLoadingMessage({
+        data: { progress: val, bookName: bookName }
+      }, val);
+      if (val === 100) {
+        localStorage.setItem(bookName, 'true');
+        loadingScreen!.style.display = 'none';
+        UIController.SetContentLoaded(true);
+      }
+    }, i * 700);
+  });
+}
 
   async registerServiceWorker(game: BaseQuiz, dataURL: string = '') {
     console.log('Registering service worker...');
@@ -281,6 +307,15 @@ function handleServiceWorkerMessage(event): void {
 }
 
 function handleLoadingMessage(event, progressValue): void {
+  const lessonId = getDataFile();
+  console.log('Lesson ID:', lessonId);
+
+  const bookName =
+    event?.data?.data?.bookName ||
+    event?.data?.bookName ||
+    event?.bookName ||
+    lessonId; // fallback to lessonId
+
   if (progressValue < 40 && progressValue >= 10) {
     progressBar!.style.width = progressValue + '%';
   } else if (progressValue >= 100) {
@@ -290,8 +325,9 @@ function handleLoadingMessage(event, progressValue): void {
       UIController.SetContentLoaded(true);
     }, 1500);
     // add book with a name to local storage as cached
-    localStorage.setItem(event.data.data.bookName, 'true');
-    readLanguageDataFromCacheAndNotifyAndroidApp(event.data.data.bookName);
+    localStorage.setItem(bookName, 'true');
+    console.log('Cached book-------------------: ' + bookName);
+    readLanguageDataFromCacheAndNotifyAndroidApp(bookName);
   }
 }
 
