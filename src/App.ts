@@ -79,24 +79,17 @@ export class App {
   }
 
   public async spinUp() {
-    window.addEventListener('load', () => {
+    window.addEventListener('load', async () => {
       console.log('Window Loaded!');
       console.log('Inside Assessment Survey App');
 
-      if (window.Android?.sendInstalledAppInfoToJS) {
-        console.log("Android bridge is available: sendInstalledAppInfoToJS is ready.");
-      } else {
-        console.warn("Android bridge not available or sendInstalledAppInfoToJS is missing.");
-      }
-
-      AndroidBridge.requestInstalledAppInfo()
-      .then((data) => {
-        console.log("isAppInstalled:", data.isAppInstalled);
-      })
-      .catch((err) => {
+      try {
+        const data = await AndroidBridge.requestInstalledAppInfo();
+        // console.log("Got response from Promise, isAppInstalled is:", data.isAppInstalled);
+        GlobalFlags.isRespect = data.isAppInstalled;
+      } catch (err) {
         console.error("Error in installedAppInfo promise:", err);
-      });
-
+      }
 
       (async () => {
         await fetchAppData(this.dataURL).then((data) => {
