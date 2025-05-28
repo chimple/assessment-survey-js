@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Build FTM Hosting
+    name: Build Assessment Survey Hosting
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
@@ -32,7 +32,7 @@ jobs:
       #     echo 'REACT_APP_GITHUB_BASE=/cuba' >> .env
 
       - name: Build
-        run: npm run tsc-build
+        run: npm run build
 
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@v13.0.3
