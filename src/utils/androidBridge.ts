@@ -39,7 +39,6 @@ const _callbacks: CallbackMap = window._callbacks;
 export const AndroidBridge = {
   sendDataToContainer(key: string, data: any) {
     try {
-      // console.log(`Attempting to send ${key} to container:`, JSON.stringify(data));
       if (window.Android !== undefined) {
         // Stringify the data before sending to avoid [object Object] issues
         const jsonData = typeof data === "object" ? JSON.stringify(data) : data;
@@ -55,7 +54,6 @@ export const AndroidBridge = {
   requestDataFromContainer(type: string): Promise<any> {
     return new Promise((resolve, reject) => {
       try {
-        // console.log(`requesting ${type}`);
         if (window.Android !== undefined) {
           _callbacks[type] = resolve; // store callback by type
           window.Android.requestDataFromContainer(type);
@@ -71,7 +69,6 @@ export const AndroidBridge = {
     requestInstalledAppInfo(): Promise<any> {
     return new Promise((resolve, reject) => {
       try {
-        // console.log("Requesting InstalledAppInfo");
         if (window.Android !== undefined) {
           _callbacks["installedAppInfo"] = resolve;
 
@@ -141,7 +138,6 @@ export const AndroidBridge = {
   _handleDataFromAndroid(responseJson: string) {
     try {
       const data = JSON.parse(responseJson);
-      // console.log("Data received from Android:", responseJson);
 
       const type = data?.type;
 
@@ -176,7 +172,6 @@ export const AndroidBridge = {
         // Save to localStorage
         localStorage.setItem("assessmentInfo", JSON.stringify(assessmentInfo));
         
-        // console.log("Received and saved assessment info from Android:", assessmentInfo);
         
         // Use the callback system
         if (_callbacks["assessmentInfo"]) {
@@ -196,9 +191,7 @@ export const AndroidBridge = {
         
         // Save to localStorage
         localStorage.setItem("userInfo", JSON.stringify(userInfo));
-        
-        // console.log("Received and saved user info from Android:", userInfo);
-        
+                
         // Use the callback system
         if (_callbacks["userInfo"]) {
           _callbacks["userInfo"](userInfo);
