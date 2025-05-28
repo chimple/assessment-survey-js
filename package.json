@@ -5,7 +5,7 @@
   "main": "bundle.js",
   "scripts": {
     "webpack": "webpack && live-server",
-    "build": "webpack",
+    "build": "webpack && npx workbox injectManifest",
     "test": "jest",
     "dev": "webpack && npx workbox injectManifest && live-server --no-browser",
     "tsc-build": "tsc && tsc-bundle tsconfig.json --exportAs Bundle --entryPoint App --outFile bundle.js",
