@@ -4,7 +4,7 @@
 import { getDataFile } from './urlUtils';
 
 export const GlobalFlags = {
-  isRespect: true,
+  isRespect: false,
 };
 
 export async function fetchAppData(url: string) {

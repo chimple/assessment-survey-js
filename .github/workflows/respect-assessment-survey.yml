@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Build FTM Hosting
+    name: Build Assessment Survey Hosting
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
@@ -33,6 +33,9 @@ jobs:
 
       - name: Build
         run: npm run tsc-build
+
+      - name: Generate Service Worker
+        run: npx workbox injectManifest
 
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@v13.0.3

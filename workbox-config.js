@@ -6,6 +6,7 @@ module.exports = {
   swDest: 'sw.js',
   swSrc: 'sw-src.js',
   globIgnores: [
+    'firebase.json',
     'audio/**/*',
     'node_modules/**/*',
     'data/**/*',
