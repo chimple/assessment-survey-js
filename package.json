@@ -4,13 +4,14 @@
   "description": "typescript implementation of the assessment / survey",
   "main": "bundle.js",
   "scripts": {
-    "webpack": "webpack && live-server",
+    "webpack": "webpack && live-server dist",
     "build": "webpack && npx workbox injectManifest",
     "test": "jest",
-    "dev": "webpack && npx workbox injectManifest && live-server --no-browser",
+    "dev": "webpack && npx workbox injectManifest && live-server dist --no-browser",
     "tsc-build": "tsc && tsc-bundle tsconfig.json --exportAs Bundle --entryPoint App --outFile bundle.js",
     "tsc-run": "tsc && tsc-bundle tsconfig.json --exportAs Bundle --entryPoint App --outFile bundle.js && live-server",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "serve": "webpack serve --mode=development"
   },
   "repository": {
     "type": "git",
@@ -40,7 +41,9 @@
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
+    "copy-webpack-plugin": "^11.0.0",
     "firebase": "^9.12.1",
+    "html-webpack-plugin": "^5.6.3",
     "jest-environment-jsdom": "^29.7.0",
     "workbox-cli": "^7.0.0",
     "workbox-core": "^7.0.0",
