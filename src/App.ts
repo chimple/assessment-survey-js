@@ -131,6 +131,7 @@ export class App {
             }
 
             this.cacheModel.addItemToAudioVisualResources('/audio/' + this.dataURL + '/answer_feedback.mp3');
+            this.cacheModel.addItemToAudioVisualResources('/audio/Correct.wav');
 
             this.game = new Assessment(this.dataURL, this.unityBridge);
           }
