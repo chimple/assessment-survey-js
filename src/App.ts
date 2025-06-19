@@ -121,17 +121,17 @@ export class App {
                   data['quizName'].toLowerCase().includes('west african english')
                 ) {
                   audioItemURL =
-                    '/audio/' + this.dataURL + '/' + buckets[i].items[j].itemName.toLowerCase().trim() + '.mp3';
+                    this.dataURL + '/' + buckets[i].items[j].itemName.toLowerCase().trim() + '.mp3';
                 } else {
-                  audioItemURL = '/audio/' + this.dataURL + '/' + buckets[i].items[j].itemName.trim() + '.mp3';
+                  audioItemURL = this.dataURL + '/' + buckets[i].items[j].itemName.trim() + '.mp3';
                 }
 
                 this.cacheModel.addItemToAudioVisualResources(audioItemURL);
               }
             }
 
-            this.cacheModel.addItemToAudioVisualResources('/audio/' + this.dataURL + '/answer_feedback.mp3');
-            this.cacheModel.addItemToAudioVisualResources('/audio/Correct.wav');
+            this.cacheModel.addItemToAudioVisualResources(this.dataURL + '/answer_feedback.mp3');
+            this.cacheModel.addItemToAudioVisualResources('Correct.wav');
 
             this.game = new Assessment(this.dataURL, this.unityBridge);
           }

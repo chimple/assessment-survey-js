@@ -14,7 +14,7 @@ export class AudioController {
   public allImages: any = {};
   public dataURL: string = '';
 
-  private correctSoundPath = 'audio/Correct.wav';
+  private correctSoundPath = 'Correct.wav';
 
   private feedbackAudio: any = null;
   private correctAudio: any = null;
@@ -27,7 +27,7 @@ export class AudioController {
 
   public static PrepareAudioAndImagesForSurvey(questionsData: qData[], dataURL: string): void {
     AudioController.getInstance().dataURL = dataURL;
-    const feedbackSoundPath = 'audio/' + AudioController.getInstance().dataURL + '/answer_feedback.mp3';
+    const feedbackSoundPath = AudioController.getInstance().dataURL + '/answer_feedback.mp3';
 
     AudioController.getInstance().wavToCache.push(feedbackSoundPath);
     AudioController.getInstance().correctAudio.src = feedbackSoundPath;
@@ -74,9 +74,9 @@ export class AudioController {
 
     let newAudio = new Audio();
     if (getCaseIndependentLangList().includes(AudioController.getInstance().dataURL.split('-')[0])) {
-      newAudio.src = 'audio/' + AudioController.getInstance().dataURL + '/' + newAudioURL;
+      newAudio.src = AudioController.getInstance().dataURL + '/' + newAudioURL;
     } else {
-      newAudio.src = 'audio/' + AudioController.getInstance().dataURL + '/' + newAudioURL;
+      newAudio.src = AudioController.getInstance().dataURL + '/' + newAudioURL;
     }
 
     AudioController.getInstance().allAudios[newAudioURL] = newAudio;
@@ -87,7 +87,7 @@ export class AudioController {
   public static PreloadBucket(newBucket: bucket, dataURL) {
     AudioController.getInstance().dataURL = dataURL;
     AudioController.getInstance().correctAudio.src =
-      'audio/' + AudioController.getInstance().dataURL + '/answer_feedback.mp3';
+      AudioController.getInstance().dataURL + '/answer_feedback.mp3';
     for (var itemIndex in newBucket.items) {
       var item = newBucket.items[itemIndex];
       AudioController.FilterAndAddAudioToAllAudios(item.itemName.toLowerCase());
