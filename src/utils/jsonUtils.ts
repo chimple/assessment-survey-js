@@ -5,12 +5,13 @@ import { getDataFile } from './urlUtils';
 
 export const GlobalFlags = {
   isRespect: false,
+  isNanoHttpd: false
 };
 
 export async function fetchAppData(url: string) {
   if (GlobalFlags.isRespect) {
     const lessonId = getDataFile();
-    const furl = `/${lessonId}/${lessonId}.json`;
+    const furl = GlobalFlags.isNanoHttpd ? `/${lessonId}/${lessonId}.json` : `/data/${lessonId}.json`;
     return fetch(furl).then((response) => response.json());
   }
   return loadData(url).then((data) => data);
@@ -42,7 +43,7 @@ export async function fetchAssessmentBuckets(url: string) {
 }
 
 export function getDataURL(url: string) {
-  return `/${url}/` + url + '.json';
+  return GlobalFlags.isNanoHttpd ? `/${url}/` + url + '.json' : '/data/' + url + '.json';
 }
 
 export function getCaseIndependentLangList() {

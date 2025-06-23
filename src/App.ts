@@ -120,18 +120,26 @@ export class App {
                   data['quizName'].includes('Luganda') ||
                   data['quizName'].toLowerCase().includes('west african english')
                 ) {
-                  audioItemURL =
-                    this.dataURL + '/' + buckets[i].items[j].itemName.toLowerCase().trim() + '.mp3';
+                  audioItemURL = GlobalFlags.isNanoHttpd ?
+                    this.dataURL + '/' + buckets[i].items[j].itemName.toLowerCase().trim() + '.mp3' :
+                    '/audio/' + this.dataURL + '/' + buckets[i].items[j].itemName.toLowerCase().trim() + '.mp3';
                 } else {
-                  audioItemURL = this.dataURL + '/' + buckets[i].items[j].itemName.trim() + '.mp3';
+                  audioItemURL = GlobalFlags.isNanoHttpd ?
+                  this.dataURL + '/' + buckets[i].items[j].itemName.trim() + '.mp3' :
+                  '/audio/' + this.dataURL + '/' + buckets[i].items[j].itemName.trim() + '.mp3';
                 }
 
                 this.cacheModel.addItemToAudioVisualResources(audioItemURL);
               }
             }
 
-            this.cacheModel.addItemToAudioVisualResources(this.dataURL + '/answer_feedback.mp3');
-            this.cacheModel.addItemToAudioVisualResources('Correct.wav');
+            if(GlobalFlags.isNanoHttpd) {
+              this.cacheModel.addItemToAudioVisualResources(this.dataURL + '/answer_feedback.mp3');
+              this.cacheModel.addItemToAudioVisualResources('Correct.wav');
+            } else {
+              this.cacheModel.addItemToAudioVisualResources('/audio/' + this.dataURL + '/answer_feedback.mp3');
+              this.cacheModel.addItemToAudioVisualResources('/audio/Correct.wav');
+            }
 
             this.game = new Assessment(this.dataURL, this.unityBridge);
           }
