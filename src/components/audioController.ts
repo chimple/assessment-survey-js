@@ -2,7 +2,7 @@
 
 import { qData } from './questionData';
 import { bucket, bucketItem } from '../assessment/bucketData';
-import { getCaseIndependentLangList } from '../utils/jsonUtils';
+import { getCaseIndependentLangList, GlobalFlags } from '../utils/jsonUtils';
 
 export class AudioController {
   private static instance: AudioController | null = null;
@@ -14,7 +14,7 @@ export class AudioController {
   public allImages: any = {};
   public dataURL: string = '';
 
-  private correctSoundPath = 'Correct.wav';
+  private correctSoundPath = GlobalFlags.isNanoHttpd ? 'Correct.wav' : 'audio/Correct.wav';
 
   private feedbackAudio: any = null;
   private correctAudio: any = null;
@@ -27,7 +27,10 @@ export class AudioController {
 
   public static PrepareAudioAndImagesForSurvey(questionsData: qData[], dataURL: string): void {
     AudioController.getInstance().dataURL = dataURL;
-    const feedbackSoundPath = AudioController.getInstance().dataURL + '/answer_feedback.mp3';
+
+    const feedbackSoundPath = GlobalFlags.isNanoHttpd ?
+    AudioController.getInstance().dataURL + '/answer_feedback.mp3' :
+    'audio/' + AudioController.getInstance().dataURL + '/answer_feedback.mp3';
 
     AudioController.getInstance().wavToCache.push(feedbackSoundPath);
     AudioController.getInstance().correctAudio.src = feedbackSoundPath;
@@ -74,9 +77,13 @@ export class AudioController {
 
     let newAudio = new Audio();
     if (getCaseIndependentLangList().includes(AudioController.getInstance().dataURL.split('-')[0])) {
-      newAudio.src = AudioController.getInstance().dataURL + '/' + newAudioURL;
+      newAudio.src = GlobalFlags.isNanoHttpd ?
+      AudioController.getInstance().dataURL + '/' + newAudioURL :
+      'audio/' + AudioController.getInstance().dataURL + '/' + newAudioURL;
     } else {
-      newAudio.src = AudioController.getInstance().dataURL + '/' + newAudioURL;
+      newAudio.src = GlobalFlags.isNanoHttpd ?
+      AudioController.getInstance().dataURL + '/' + newAudioURL :
+      'audio/' + AudioController.getInstance().dataURL + '/' + newAudioURL;
     }
 
     AudioController.getInstance().allAudios[newAudioURL] = newAudio;
@@ -86,8 +93,9 @@ export class AudioController {
 
   public static PreloadBucket(newBucket: bucket, dataURL) {
     AudioController.getInstance().dataURL = dataURL;
-    AudioController.getInstance().correctAudio.src =
-      AudioController.getInstance().dataURL + '/answer_feedback.mp3';
+    AudioController.getInstance().correctAudio.src = GlobalFlags.isNanoHttpd ?
+      AudioController.getInstance().dataURL + '/answer_feedback.mp3' :
+      'audio/' + AudioController.getInstance().dataURL + '/answer_feedback.mp3';
     for (var itemIndex in newBucket.items) {
       var item = newBucket.items[itemIndex];
       AudioController.FilterAndAddAudioToAllAudios(item.itemName.toLowerCase());
