@@ -14,7 +14,7 @@ export class AudioController {
   public allImages: any = {};
   public dataURL: string = '';
 
-  private correctSoundPath = GlobalFlags.isNanoHttpd ? 'Correct.wav' : 'audio/Correct.wav';
+  private correctSoundPath = GlobalFlags.isRespect ? 'Correct.wav' : 'audio/Correct.wav';
 
   private feedbackAudio: any = null;
   private correctAudio: any = null;
@@ -28,7 +28,7 @@ export class AudioController {
   public static PrepareAudioAndImagesForSurvey(questionsData: qData[], dataURL: string): void {
     AudioController.getInstance().dataURL = dataURL;
 
-    const feedbackSoundPath = GlobalFlags.isNanoHttpd ?
+    const feedbackSoundPath = GlobalFlags.isRespect ?
     AudioController.getInstance().dataURL + '/answer_feedback.mp3' :
     'audio/' + AudioController.getInstance().dataURL + '/answer_feedback.mp3';
 
@@ -77,11 +77,11 @@ export class AudioController {
 
     let newAudio = new Audio();
     if (getCaseIndependentLangList().includes(AudioController.getInstance().dataURL.split('-')[0])) {
-      newAudio.src = GlobalFlags.isNanoHttpd ?
+      newAudio.src = GlobalFlags.isRespect ?
       AudioController.getInstance().dataURL + '/' + newAudioURL :
       'audio/' + AudioController.getInstance().dataURL + '/' + newAudioURL;
     } else {
-      newAudio.src = GlobalFlags.isNanoHttpd ?
+      newAudio.src = GlobalFlags.isRespect ?
       AudioController.getInstance().dataURL + '/' + newAudioURL :
       'audio/' + AudioController.getInstance().dataURL + '/' + newAudioURL;
     }
@@ -93,7 +93,7 @@ export class AudioController {
 
   public static PreloadBucket(newBucket: bucket, dataURL) {
     AudioController.getInstance().dataURL = dataURL;
-    AudioController.getInstance().correctAudio.src = GlobalFlags.isNanoHttpd ?
+    AudioController.getInstance().correctAudio.src = GlobalFlags.isRespect ?
       AudioController.getInstance().dataURL + '/answer_feedback.mp3' :
       'audio/' + AudioController.getInstance().dataURL + '/answer_feedback.mp3';
     for (var itemIndex in newBucket.items) {
