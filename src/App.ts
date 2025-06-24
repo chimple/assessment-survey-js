@@ -120,11 +120,11 @@ export class App {
                   data['quizName'].includes('Luganda') ||
                   data['quizName'].toLowerCase().includes('west african english')
                 ) {
-                  audioItemURL = GlobalFlags.isNanoHttpd ?
+                  audioItemURL = GlobalFlags.isRespect ?
                     this.dataURL + '/' + buckets[i].items[j].itemName.toLowerCase().trim() + '.mp3' :
                     '/audio/' + this.dataURL + '/' + buckets[i].items[j].itemName.toLowerCase().trim() + '.mp3';
                 } else {
-                  audioItemURL = GlobalFlags.isNanoHttpd ?
+                  audioItemURL = GlobalFlags.isRespect ?
                   this.dataURL + '/' + buckets[i].items[j].itemName.trim() + '.mp3' :
                   '/audio/' + this.dataURL + '/' + buckets[i].items[j].itemName.trim() + '.mp3';
                 }
@@ -133,7 +133,7 @@ export class App {
               }
             }
 
-            if(GlobalFlags.isNanoHttpd) {
+            if(GlobalFlags.isRespect) {
               this.cacheModel.addItemToAudioVisualResources(this.dataURL + '/answer_feedback.mp3');
               this.cacheModel.addItemToAudioVisualResources('Correct.wav');
             } else {
@@ -159,7 +159,7 @@ export class App {
         });
 
         // --- Respect mode logic here ---
-        if (GlobalFlags.isRespect) {
+        if (!GlobalFlags.isRespect) {
           console.warn("--------------------------------Respect mode enabled. Simulating fake loading progress--------------------------------");
           this.simulateFakeCachingProgress(this.lang);
         } else {

@@ -11,12 +11,12 @@
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
     },
     {
-      "public": ".",
+      "public": "./build",
       "site": "ibiza-stage-assessment-respect",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
     },
     {
-      "public": ".",
+      "public": "./build",
       "site": "ibiza-stage-assessment-skanda",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
     }
