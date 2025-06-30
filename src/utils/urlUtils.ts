@@ -2,6 +2,8 @@
  * Contains utils for working with URL strings.
  */
 
+export const assetURL = "https://curious-reader.web.app/web-apps/assessment";
+
 export function getAppType(): string {
   const pathParams = getPathName();
   const appType = pathParams.get('appType');
