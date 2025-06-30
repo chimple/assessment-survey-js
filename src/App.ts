@@ -2,7 +2,7 @@
  * App class that represents an entry point of the application.
  */
 
-import { getUUID, getUserSource, getDataFile } from './utils/urlUtils';
+import { getUUID, getUserSource, getDataFile, assetURL } from './utils/urlUtils';
 import { Survey } from './survey/survey';
 import { Assessment } from './assessment/assessment';
 import { UnityBridge } from './utils/unityBridge';
@@ -87,6 +87,7 @@ export class App {
         const data = await AndroidBridge.requestInstalledAppInfo();
         // console.log("Got response from Promise, isAppInstalled is:", data.isAppInstalled);
         GlobalFlags.isRespect = data.isAppInstalled;
+        // GlobalFlags.isRespect = true;
       } catch (err) {
         console.error("Error in installedAppInfo promise:", err);
       }
@@ -120,12 +121,12 @@ export class App {
                   data['quizName'].includes('Luganda') ||
                   data['quizName'].toLowerCase().includes('west african english')
                 ) {
-                  audioItemURL = GlobalFlags.isRespect ?
-                    this.dataURL + '/' + buckets[i].items[j].itemName.toLowerCase().trim() + '.mp3' :
+                  audioItemURL = !GlobalFlags.isRespect ?
+                    `${assetURL}/` + this.dataURL + '/' + buckets[i].items[j].itemName.toLowerCase().trim() + '.mp3' :
                     '/audio/' + this.dataURL + '/' + buckets[i].items[j].itemName.toLowerCase().trim() + '.mp3';
                 } else {
-                  audioItemURL = GlobalFlags.isRespect ?
-                  this.dataURL + '/' + buckets[i].items[j].itemName.trim() + '.mp3' :
+                  audioItemURL = !GlobalFlags.isRespect ?
+                  `${assetURL}/` + this.dataURL + '/' + buckets[i].items[j].itemName.trim() + '.mp3' :
                   '/audio/' + this.dataURL + '/' + buckets[i].items[j].itemName.trim() + '.mp3';
                 }
 
@@ -133,9 +134,9 @@ export class App {
               }
             }
 
-            if(GlobalFlags.isRespect) {
-              this.cacheModel.addItemToAudioVisualResources(this.dataURL + '/answer_feedback.mp3');
-              this.cacheModel.addItemToAudioVisualResources('Correct.wav');
+            if(!GlobalFlags.isRespect) {
+              this.cacheModel.addItemToAudioVisualResources(`${assetURL}/` + this.dataURL + '/answer_feedback.mp3');
+              this.cacheModel.addItemToAudioVisualResources('/audio/Correct.wav');
             } else {
               this.cacheModel.addItemToAudioVisualResources('/audio/' + this.dataURL + '/answer_feedback.mp3');
               this.cacheModel.addItemToAudioVisualResources('/audio/Correct.wav');
