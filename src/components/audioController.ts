@@ -15,7 +15,7 @@ export class AudioController {
   public allImages: any = {};
   public dataURL: string = '';
 
-  private correctSoundPath = 'audio/Correct.wav';
+  private correctSoundPath = 'audioAsset/Correct.wav';
 
   private feedbackAudio: any = null;
   private correctAudio: any = null;

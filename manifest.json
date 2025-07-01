@@ -3,10 +3,10 @@
   "short_name": "Assessment/Survey app",
   "icons": [
     {
-      "src": "img/icon.png",
-      "sizes": "128x128",
+      "src": "img/icon.jpg",
+      "sizes": "64x64",
       "purpose": "any",
-      "type": "image/png"
+      "type": "image/jpg"
     }
   ],
   "start_url": "/",
