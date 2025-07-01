@@ -3,8 +3,8 @@
   "short_name": "Assessment/Survey app",
   "icons": [
     {
-      "src": "images/red_bird_256.webp",
-      "sizes": "256x256",
+      "src": "img/icon.png",
+      "sizes": "128x128",
       "purpose": "any",
       "type": "image/png"
     }
