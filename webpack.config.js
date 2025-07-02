@@ -23,8 +23,7 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         { from: 'manifest.json', to: '.' },
-        { from: 'data', to: 'data' },
-        { from: 'audio', to: 'audio' },
+        { from: 'audioAsset', to: 'audioAsset'},
         { from: 'css', to: 'css' },
         { from: 'animation', to: 'animation' },
         { from: 'img', to: 'img' },

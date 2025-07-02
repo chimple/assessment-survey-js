@@ -83,13 +83,15 @@ export class App {
       console.log('Window Loaded!');
       console.log('Inside Assessment Survey App');
 
-      try {
-        const data = await AndroidBridge.requestInstalledAppInfo();
-        // console.log("Got response from Promise, isAppInstalled is:", data.isAppInstalled);
-        GlobalFlags.isRespect = data.isAppInstalled;
-        // GlobalFlags.isRespect = true;
-      } catch (err) {
-        console.error("Error in installedAppInfo promise:", err);
+      if(GlobalFlags.isRespect) {
+          try {
+            const data = await AndroidBridge.requestInstalledAppInfo();
+            // console.log("Got response from Promise, isAppInstalled is:", data.isAppInstalled);
+            GlobalFlags.isRespect = data.isAppInstalled;
+            // GlobalFlags.isRespect = true;
+          } catch (err) {
+            console.error("Error in installedAppInfo promise:", err);
+          }
       }
 
       (async () => {
@@ -136,10 +138,10 @@ export class App {
 
             if(!GlobalFlags.isRespect) {
               this.cacheModel.addItemToAudioVisualResources(`${assetURL}/` + this.dataURL + '/answer_feedback.mp3');
-              this.cacheModel.addItemToAudioVisualResources('/audio/Correct.wav');
+              this.cacheModel.addItemToAudioVisualResources('/audioAsset/Correct.wav');
             } else {
               this.cacheModel.addItemToAudioVisualResources('/audio/' + this.dataURL + '/answer_feedback.mp3');
-              this.cacheModel.addItemToAudioVisualResources('/audio/Correct.wav');
+              this.cacheModel.addItemToAudioVisualResources('/audioAsset/Correct.wav');
             }
 
             this.game = new Assessment(this.dataURL, this.unityBridge);

@@ -32,7 +32,7 @@ export function getUserSource(): string {
 
 export function getDataFile(): string {
   const pathParams = getPathName();
-  var data = pathParams.get('data');
+  var data = pathParams.get('lesson_id');
   if (data == undefined) {
     console.log('default data file');
     data = 'zulu-lettersounds';
