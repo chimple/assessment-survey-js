@@ -171,6 +171,17 @@ export class App {
         }
       })();
     });
+
+    window.addEventListener('gameFinished', (event: CustomEvent) => {
+      // Send score to container app
+      if (window.parent) {
+        window.parent.postMessage({
+          type: 'game_score',
+          score: event.detail.score,
+          detail: event.detail
+        }, '*');
+      }
+    });
   }
 
 private simulateFakeCachingProgress(lang: string) {

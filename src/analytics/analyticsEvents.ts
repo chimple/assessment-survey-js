@@ -299,7 +299,7 @@ export class AnalyticsEvents {
 
     AndroidBridge.sendDataToContainer("gameData", levelCompletedData);
     console.log("Sent level completed data to container:", levelCompletedData);
-    
+
     AnalyticsEvents.sendDataToThirdParty(score, AnalyticsEvents.uuid);
 
     // Attempt to send the score to the parent curious frame if it exists
@@ -335,6 +335,25 @@ export class AnalyticsEvents {
       appVersion: AnalyticsEvents.appVersion,
       contentVersion: AnalyticsEvents.contentVersion,
     });
+
+    // Dispatching event to notfiy that game is completed
+    const gameFinishedEvent = new CustomEvent('gameFinished', {
+      detail: {
+        score,
+        maxScore,
+        basalBucket: basalBucketID,
+        ceilingBucket: ceilingBucketID,
+        appVersion: AnalyticsEvents.appVersion,
+        contentVersion: AnalyticsEvents.contentVersion,
+        right_moves: MathUtils.correctMove,
+        wrong_moves: MathUtils.wrongMove,
+        duration: (Date.now() - MathUtils.duration) / 1000,
+        success_or_failure: lessonScore > 35 ? "success" : "failure",
+        level_number: lessonName,
+        number_of_successful_puzzles: 0,
+      }
+    });
+    window.dispatchEvent(gameFinishedEvent);
   }
 
   static sendDataToThirdParty(score: number, uuid: string): void {
