@@ -171,6 +171,7 @@ export class App {
         }
       })();
     });
+
   }
 
 private simulateFakeCachingProgress(lang: string) {
