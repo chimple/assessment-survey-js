@@ -53,19 +53,15 @@ export class AudioController {
         }
       }
     }
-    console.log(AudioController.getInstance().allAudios);
-    console.log(AudioController.getInstance().allImages);
   }
 
   public static AddImageToAllImages(newImageURL: string): void {
-    console.log('Add image: ' + newImageURL);
     let newImage = new Image();
     newImage.src = newImageURL;
     AudioController.getInstance().allImages[newImageURL] = newImage;
   }
 
   public static FilterAndAddAudioToAllAudios(newAudioURL: string): void {
-    console.log('Adding audio: ' + newAudioURL);
     if (newAudioURL.includes('.wav')) {
       newAudioURL = newAudioURL.replace('.wav', '.mp3');
     } else if (newAudioURL.includes('.mp3')) {
@@ -73,8 +69,6 @@ export class AudioController {
     } else {
       newAudioURL = newAudioURL.trim() + '.mp3';
     }
-
-    console.log('Filtered: ' + newAudioURL);
 
     let newAudio = new Audio();
     if (getCaseIndependentLangList().includes(AudioController.getInstance().dataURL.split('-')[0])) {
@@ -88,8 +82,6 @@ export class AudioController {
     }
 
     AudioController.getInstance().allAudios[newAudioURL] = newAudio;
-
-    console.log(newAudio.src);
   }
 
   public static PreloadBucket(newBucket: bucket, dataURL) {
@@ -105,7 +97,6 @@ export class AudioController {
 
   public static PlayAudio(audioName: string, finishedCallback?: Function, audioAnim?: Function): void {
     audioName = audioName.toLowerCase();
-    console.log('trying to play ' + audioName);
     if (audioName.includes('.mp3')) {
       if (audioName.slice(-4) != '.mp3') {
         audioName = audioName.trim() + '.mp3';
@@ -113,9 +104,6 @@ export class AudioController {
     } else {
       audioName = audioName.trim() + '.mp3';
     }
-
-    console.log('Pre play all audios: ');
-    console.log(AudioController.getInstance().allAudios);
 
     const playPromise = new Promise<void>((resolve, reject) => {
       const audio = AudioController.getInstance().allAudios[audioName];

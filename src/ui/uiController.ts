@@ -137,11 +137,9 @@ export class UIController {
 
   public SetCorrectLabelVisibility(visible: boolean): void {
     this.devModeCorrectLabelVisibility = visible;
-    console.log('Correct label visibility set to ', this.devModeCorrectLabelVisibility);
   }
 
   public SetBucketControlsVisibility(visible: boolean): void {
-    console.log('Bucket controls visibility set to ', visible);
     this.devModeBucketControlsEnabled = visible;
   }
 
@@ -276,7 +274,6 @@ export class UIController {
   }
 
   public static SetFeedbackText(nt: string): void {
-    console.log('Feedback text set to ' + nt);
     UIController.getInstance().feedbackContainer.innerHTML = nt;
   }
 
@@ -323,7 +320,6 @@ export class UIController {
     if (newQ === null) {
       return;
     }
-    console.log('ready for next!');
     UIController.getInstance().answersContainer.style.visibility = 'hidden';
     for (var b in UIController.getInstance().buttons) {
       UIController.getInstance().buttons[b].style.visibility = 'hidden';
@@ -342,7 +338,6 @@ export class UIController {
     const isBucketControlsEnabled = UIController.getInstance().devModeBucketControlsEnabled;
     if (isBucketControlsEnabled) {
       UIController.getInstance().externalBucketControlsGenerationHandler(UIController.getInstance().playButton, () => {
-        console.log('Call from inside click handler of external bucket controls');
         UIController.ShowQuestion();
         //playquestionaudio
         AudioController.PlayAudio(
@@ -385,10 +380,6 @@ export class UIController {
     const isBucketControlsEnabled = UIController.getInstance().devModeBucketControlsEnabled;
     if (isBucketControlsEnabled) {
       UIController.getInstance().externalBucketControlsGenerationHandler(UIController.getInstance().playButton, () => {
-        console.log('Call from inside click handler of external bucket controls #2');
-        console.log('next question button pressed');
-        console.log(newQuestion.promptAudio);
-
         if ('promptAudio' in newQuestion) {
           AudioController.PlayAudio(newQuestion.promptAudio, undefined, UIController.ShowAudioAnimation);
         }
@@ -399,9 +390,6 @@ export class UIController {
 
       var nextQuestionButton = document.getElementById('nextqButton');
       nextQuestionButton.addEventListener('click', function () {
-        console.log('next question button pressed');
-        console.log(newQuestion.promptAudio);
-
         if ('promptAudio' in newQuestion) {
           AudioController.PlayAudio(newQuestion.promptAudio, undefined, UIController.ShowAudioAnimation);
         }
@@ -441,57 +429,41 @@ export class UIController {
     starToShow.src = '../animation/Star.gif';
     starToShow.classList.add('topstarv');
     starToShow.classList.remove('topstarh');
-
     starToShow.style.position = 'absolute';
-
     let containerWidth = UIController.getInstance().starContainer.offsetWidth;
     let containerHeight = UIController.getInstance().starContainer.offsetHeight;
-
-    console.log('Stars Container dimensions: ', containerWidth, containerHeight);
-
     let randomX = 0;
     let randomY = 0;
-
     do {
       randomX = Math.floor(Math.random() * (containerWidth - containerWidth * 0.2));
       randomY = Math.floor(Math.random() * containerHeight);
     } while (UIController.OverlappingOtherStars(UIController.instance.starPositions, randomX, randomY, 28));
-
     const animationSpeedMultiplier = UIController.getInstance().animationSpeedMultiplier;
-
     // Save these random x and y values, make the star appear in the center of the screen, make it 3 times bigger using scale and slowly transition to the random x and y values
     starToShow.style.transform = 'scale(10)';
     starToShow.style.transition = `top ${1 * animationSpeedMultiplier}s ease, left ${1 * animationSpeedMultiplier}s ease, transform ${0.5 * animationSpeedMultiplier}s ease`;
     starToShow.style.zIndex = '500';
     starToShow.style.top = window.innerHeight / 2 + 'px';
     starToShow.style.left = UIController.instance.gameContainer.offsetWidth / 2 - starToShow.offsetWidth / 2 + 'px';
-
     setTimeout(() => {
       starToShow.style.transition = `top ${2 * animationSpeedMultiplier}s ease, left ${2 * animationSpeedMultiplier}s ease, transform ${2 * animationSpeedMultiplier}s ease`;
       if (randomX < containerWidth / 2 - 30) {
         // Rotate the star to the right a bit
         const rotation = 5 + Math.random() * 8;
-        console.log('Rotating star to the right', rotation);
         starToShow.style.transform = 'rotate(-' + rotation + 'deg) scale(1)';
       } else {
         // Rotate the star to the left a bit
         const rotation = 5 + Math.random() * 8;
-        console.log('Rotating star to the left', rotation);
         starToShow.style.transform = 'rotate(' + rotation + 'deg) scale(1)';
       }
-
       starToShow.style.left = 10 + randomX + 'px';
       starToShow.style.top = randomY + 'px';
-
       setTimeout(() => {
         starToShow.style.filter = 'drop-shadow(0px 0px 10px yellow)';
       }, 1900 * animationSpeedMultiplier);
     }, 1000 * animationSpeedMultiplier);
-
     UIController.instance.starPositions.push({ x: randomX, y: randomY });
-
     UIController.getInstance().qAnsNum += 1;
-
     UIController.getInstance().shownStarsCount += 1;
   }
 
@@ -504,12 +476,10 @@ export class UIController {
 
   private answerButtonPress(buttonNum: number): void {
     const allButtonsVisible = this.buttons.every((button) => button.style.visibility === 'visible');
-    console.log(this.buttonsActive, allButtonsVisible);
     if (this.buttonsActive === true) {
       AudioController.PlayDing();
       const nPressed = Date.now();
       const dTime = nPressed - this.qStart;
-      console.log('answered in ' + dTime);
       this.buttonPressCallback(buttonNum, dTime);
     }
   }
@@ -517,10 +487,7 @@ export class UIController {
   public static ProgressChest() {
     const chestImage = document.getElementById('chestImage') as HTMLImageElement;
     let currentImgSrc = chestImage.src;
-    console.log('Chest Progression-->', chestImage);
-    console.log('Chest Progression-->', chestImage.src);
     const currentImageNumber = parseInt(currentImgSrc.slice(-6, -4), 10);
-    console.log('Chest Progression number-->', currentImageNumber);
     const nextImageNumber = (currentImageNumber % 4) + 1;
     const nextImageSrc = `img/chestprogression/TreasureChestOpen0${nextImageNumber}.svg`;
     chestImage.src = nextImageSrc;
