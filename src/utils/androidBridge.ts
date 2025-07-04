@@ -19,7 +19,7 @@ export interface LevelCompletedEvent {
     number_of_successful_puzzles: number;
     duration: number;
     score: number;
-}  
+}
 
 declare global {
   interface Window {
@@ -43,8 +43,6 @@ export const AndroidBridge = {
         // Stringify the data before sending to avoid [object Object] issues
         const jsonData = typeof data === "object" ? JSON.stringify(data) : data;
         window.Android.sendDataToContainer(key, jsonData);
-      } else {
-        console.warn("Android bridge not available: sendDataToContainer");
       }
     } catch (error) {
       console.error("Error sending data to container:", error);
@@ -88,7 +86,7 @@ export const AndroidBridge = {
         if (window.Android !== undefined) {
           // Store the callback in the _callbacks map
           _callbacks["assessmentInfo"] = resolve;
-          
+
           // Request the assessment info from Android
           window.Android.sendAssessmentInfoToJS();
         } else {
@@ -106,7 +104,7 @@ export const AndroidBridge = {
         if (window.Android !== undefined) {
           // Store the callback in the _callbacks map
           _callbacks["userInfo"] = resolve;
-          
+
           // Request the user info from Android
           window.Android.sendUserInfoToJS();
         } else {
@@ -121,7 +119,7 @@ export const AndroidBridge = {
   sendAssessmentResults(results: any) {
     try {
       this.sendDataToContainer("assessmentResults", results);
-      
+
       // Send an analytics event with the assessment results
       if (results && typeof results === 'object') {
         // Use a simpler approach that doesn't rely on protected properties
@@ -156,11 +154,9 @@ export const AndroidBridge = {
       if (type && _callbacks[type]) {
         _callbacks[type](data); // Resolve the Promise
         delete _callbacks[type]; // Clean up after resolving
-      } else {
-        console.warn("No callback found for type:", type);
       }
     } catch (e) {
-      console.error("Failed to parse data from Android:", e);
+      console.warn("Failed to parse data from Android:", e);
     }
   },
 
@@ -168,11 +164,11 @@ export const AndroidBridge = {
     try {
       if (data && data.data) {
         const assessmentInfo = data.data;
-        
+
         // Save to localStorage
         localStorage.setItem("assessmentInfo", JSON.stringify(assessmentInfo));
-        
-        
+
+
         // Use the callback system
         if (_callbacks["assessmentInfo"]) {
           _callbacks["assessmentInfo"](assessmentInfo);
@@ -188,10 +184,10 @@ export const AndroidBridge = {
     try {
       if (data && data.data) {
         const userInfo = data.data;
-        
+
         // Save to localStorage
         localStorage.setItem("userInfo", JSON.stringify(userInfo));
-                
+
         // Use the callback system
         if (_callbacks["userInfo"]) {
           _callbacks["userInfo"](userInfo);

@@ -24,16 +24,12 @@ export class UnityBridge {
   public SendLoaded() {
     if (this.unityReference !== null) {
       this.unityReference.call('loaded');
-    } else {
-      console.log('would call Unity loaded now');
     }
   }
 
   public SendClose() {
     if (this.unityReference !== null) {
       this.unityReference.call('close');
-    } else {
-      console.log('would close Unity now');
     }
   }
 }

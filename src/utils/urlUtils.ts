@@ -14,7 +14,6 @@ export function getUUID(): string {
   const pathParams = getPathName();
   var nuuid = pathParams.get('cr_user_id');
   if (nuuid == undefined) {
-    console.log('no uuid provided');
     nuuid = 'WebUserNoID';
   }
   return nuuid;
@@ -24,7 +23,6 @@ export function getUserSource(): string {
   const pathParams = getPathName();
   var nuuid = pathParams.get('userSource');
   if (nuuid == undefined) {
-    console.log('no user source provided');
     nuuid = 'WebUserNoSource';
   }
   return nuuid;
@@ -34,7 +32,6 @@ export function getDataFile(): string {
   const pathParams = getPathName();
   var data = pathParams.get('lesson_id');
   if (data == undefined) {
-    console.log('default data file');
     data = 'zulu-lettersounds';
     //data = "survey-zulu";
   }

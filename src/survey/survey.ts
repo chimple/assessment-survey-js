@@ -16,8 +16,6 @@ export class Survey extends BaseQuiz {
 
   constructor(dataURL: string, unityBridge) {
     super();
-    console.log('Survey initialized');
-
     this.dataURL = dataURL;
     this.unityBridge = unityBridge;
     this.currentQuestionIndex = 0;
@@ -26,23 +24,18 @@ export class Survey extends BaseQuiz {
   }
 
   public handleAnimationSpeedMultiplierChange(): void {
-    console.log('Animation Speed Multiplier Changed');
   }
 
   public handleBucketGenModeChange = () => {
-    console.log('Bucket Gen Mode Changed');
   };
 
   public handleCorrectLabelShownChange = () => {
-    console.log('Correct Label Shown Changed');
   };
 
   public handleBucketInfoShownChange = () => {
-    console.log('Bucket Info Shown Changed');
   };
 
   public handleBucketControlsShownChange = () => {
-    console.log('Bucket Controls Shown Changed');
   };
 
   public async Run(app: App) {
@@ -60,14 +53,11 @@ export class Survey extends BaseQuiz {
 
   public onQuestionEnd = () => {
     UIController.SetFeedbackVisibile(false, false);
-
     this.currentQuestionIndex += 1;
-
     setTimeout(() => {
       if (this.HasQuestionsLeft()) {
         UIController.ReadyForNext(this.buildNewQuestion());
       } else {
-        console.log('There are no questions left.');
         this.onEnd();
       }
     }, 500);

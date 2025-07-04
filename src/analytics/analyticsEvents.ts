@@ -43,17 +43,14 @@ export class AnalyticsEvents {
 
   // Get Location
   static getLocation(): void {
-    console.log('starting to get location');
     fetch(`https://ipinfo.io/json?token=b6268727178610`)
       .then((response) => {
-        console.log('got location response');
         if (!response.ok) {
           throw Error(response.statusText);
         }
         return response.json();
       })
       .then((jsonResponse) => {
-        console.log(jsonResponse);
         AnalyticsEvents.latlong = jsonResponse.loc;
         var lpieces = AnalyticsEvents.latlong.split(',');
         var lat = parseFloat(lpieces[0]).toFixed(2);
@@ -95,8 +92,6 @@ export class AnalyticsEvents {
 
     var eventString = 'user ' + AnalyticsEvents.uuid + ' opened the assessment';
 
-    console.log(eventString);
-
     logEvent(AnalyticsEvents.gana, 'opened', {});
   }
 
@@ -129,20 +124,12 @@ export class AnalyticsEvents {
   static sendLocation(): void {
     var eventString =
       'Sending User coordinates: ' + AnalyticsEvents.uuid + ' : ' + AnalyticsEvents.clat + ', ' + AnalyticsEvents.clon;
-    console.log(eventString);
-
     logEvent(AnalyticsEvents.gana, 'user_location', {
       user: AnalyticsEvents.uuid,
       lang: AnalyticsEvents.getAppLanguageFromDataURL(AnalyticsEvents.dataURL),
       app: AnalyticsEvents.getAppTypeFromDataURL(AnalyticsEvents.dataURL),
       latlong: AnalyticsEvents.joinLatLong(AnalyticsEvents.clat, AnalyticsEvents.clon),
     });
-
-    console.log('INITIALIZED EVENT SENT');
-    console.log('App Language: ' + AnalyticsEvents.getAppLanguageFromDataURL(AnalyticsEvents.dataURL));
-    console.log('App Type: ' + AnalyticsEvents.getAppTypeFromDataURL(AnalyticsEvents.dataURL));
-    console.log('App Version: ' + AnalyticsEvents.appVersion);
-    console.log('Content Version: ' + AnalyticsEvents.contentVersion);
 
     logEvent(AnalyticsEvents.gana, 'initialized', {
       type: 'initialized',
@@ -187,10 +174,6 @@ export class AnalyticsEvents {
     eventString += '] ';
     eventString += iscorrect;
     eventString += bucket;
-    console.log(eventString);
-    console.log('Answered App Version: ' + AnalyticsEvents.appVersion);
-    console.log('Content Version: ' + AnalyticsEvents.contentVersion);
-
     logEvent(AnalyticsEvents.gana, 'answered', {
       type: 'answered',
       clUserId: AnalyticsEvents.uuid,
@@ -232,10 +215,6 @@ export class AnalyticsEvents {
       ' tried' +
       ' and passed: ' +
       passed;
-    console.log(eventString);
-    console.log('Bucket Completed App Version: ' + AnalyticsEvents.appVersion);
-    console.log('Content Version: ' + AnalyticsEvents.contentVersion);
-
     logEvent(AnalyticsEvents.gana, 'bucketCompleted', {
       type: 'bucketCompleted',
       clUserId: AnalyticsEvents.uuid,
@@ -258,7 +237,6 @@ export class AnalyticsEvents {
   // Send Finished
   static sendFinished(buckets: bucket[] = null, basalBucket: number, ceilingBucket: number): void {
     let eventString = 'user ' + AnalyticsEvents.uuid + ' finished the assessment';
-    console.log(eventString);
 
     let basalBucketID = AnalyticsEvents.getBasalBucketID(buckets);
     let ceilingBucketID = AnalyticsEvents.getCeilingBucketID(buckets);
@@ -270,19 +248,6 @@ export class AnalyticsEvents {
     let score = AnalyticsEvents.calculateScore(buckets, basalBucketID);
     const maxScore = buckets.length * 100;
 
-    console.log('Sending completed event');
-    console.log('Score: ' + score);
-    console.log('Max Score: ' + maxScore);
-    console.log('Basal Bucket: ' + basalBucketID);
-    console.log('BASAL FROM ASSESSMENT: ' + basalBucket);
-    console.log('Ceiling Bucket: ' + ceilingBucketID);
-    console.log('CEILING FROM ASSESSMENT: ' + ceilingBucket);
-    console.log('Completed App Version: ' + AnalyticsEvents.appVersion);
-    console.log('Content Version: ' + AnalyticsEvents.contentVersion);
-
-    console.log('MathUtils.wrongMove: ' + MathUtils.wrongMove);
-    console.log('MathUtils.correctMove: ' + MathUtils.correctMove);
-    console.log("MathUtils.duration: " , Date.now() - MathUtils.duration);
     const lessonName = AnalyticsEvents.getAppTypeFromDataURL(AnalyticsEvents.dataURL);
     const lessonScore = MathUtils.calculateScore();
 
@@ -298,7 +263,6 @@ export class AnalyticsEvents {
     };
 
     AndroidBridge.sendDataToContainer("gameData", levelCompletedData);
-    console.log("Sent level completed data to container:", levelCompletedData);
 
     AnalyticsEvents.sendDataToThirdParty(score, AnalyticsEvents.uuid);
 
@@ -308,11 +272,6 @@ export class AnalyticsEvents {
         {
           type: 'assessment_completed',
           score: score,
-          // maxScore: maxScore,
-          // basalBucket: basalBucketID,
-          // ceilingBucket: ceilingBucketID,
-          // appVersion: AnalyticsEvents.appVersion,
-          // contentVersion: AnalyticsEvents.contentVersion,
         },
         'https://synapse.curiouscontent.org/'
       );
@@ -354,12 +313,11 @@ export class AnalyticsEvents {
       }
     });
     window.dispatchEvent(gameFinishedEvent);
+    console.log('Game finished event dispatched:', gameFinishedEvent);
   }
 
   static sendDataToThirdParty(score: number, uuid: string): void {
     // Send data to the third party
-    console.log('Attempting to send score to a third party! Score: ', score);
-
     // Read the URL from utm parameters
     const urlParams = new URLSearchParams(window.location.search);
     const targetPartyURL = urlParams.get('endpoint');
@@ -367,7 +325,7 @@ export class AnalyticsEvents {
     const xhr = new XMLHttpRequest();
 
     if (!targetPartyURL) {
-      console.error('No target party URL found!');
+      console.warn('No target party URL found!');
       return;
     }
 
@@ -394,7 +352,6 @@ export class AnalyticsEvents {
       xhr.onload = function () {
         if (xhr.status >= 200 && xhr.status < 300) {
           // Request was successful, handle the response here
-          console.log('POST success!' + xhr.responseText);
         } else {
           // Request failed
           console.error('Request failed with status: ' + xhr.status);
@@ -409,14 +366,7 @@ export class AnalyticsEvents {
 
   // Calculate Score
   static calculateScore(buckets: bucket[], basalBucketID: number): number {
-    console.log('Calculating score');
-    console.log(buckets);
-
     let score = 0;
-
-    console.log('Basal Bucket ID: ' + basalBucketID);
-
-    // Get the numcorrect from the basal bucket based on looping through and finding the bucket id
     let numCorrect = 0;
 
     for (const index in buckets) {
@@ -427,12 +377,8 @@ export class AnalyticsEvents {
       }
     }
 
-    console.log('Num Correct: ' + numCorrect, ' basal: ' + basalBucketID, ' buckets: ' + buckets.length);
-
     if (basalBucketID === buckets.length && numCorrect >= 4) {
       // If the user has enough correct answers in the last bucket, give them a perfect score
-      console.log('Perfect score');
-
       return buckets.length * 100;
     }
 

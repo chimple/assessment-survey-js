@@ -50,12 +50,9 @@ export class App {
   constructor() {
     this.unityBridge = new UnityBridge();
 
-    console.log('Initializing app...');
 
     this.dataURL = getDataFile();
     this.cacheModel = new CacheModel(this.dataURL, this.dataURL, new Set<string>());
-
-    // console.log("Data file: " + this.dataURL);
 
     const firebaseConfig = {
       apiKey: 'AIzaSyB8c2lBVi26u7YRL9sxOP97Uaq3yN8hTl4',
@@ -74,99 +71,90 @@ export class App {
     this.analytics = fanalytics;
     logEvent(fanalytics, 'notification_received');
     logEvent(fanalytics, 'test initialization event', {});
-
-    console.log('firebase initialized');
   }
 
   public async spinUp() {
     window.addEventListener('load', async () => {
-      console.log('Window Loaded!');
-      console.log('Inside Assessment Survey App');
-
       if(GlobalFlags.isRespect) {
           try {
             const data = await AndroidBridge.requestInstalledAppInfo();
-            // console.log("Got response from Promise, isAppInstalled is:", data.isAppInstalled);
             GlobalFlags.isRespect = data.isAppInstalled;
-            // GlobalFlags.isRespect = true;
           } catch (err) {
             console.error("Error in installedAppInfo promise:", err);
           }
       }
 
       (async () => {
-        await fetchAppData(this.dataURL).then((data) => {
-          console.log('Assessment/Survey ' + appVersion + ' initializing!');
-          console.log('App data loaded!');
-          console.log(data);
+        try {
+          await fetchAppData(this.dataURL).then((data) => {
+            this.cacheModel.setContentFilePath(getDataURL(this.dataURL));
 
-          this.cacheModel.setContentFilePath(getDataURL(this.dataURL));
+            // TODO: Why do we need to set the feedback text here?
+            UIController.SetFeedbackText(data['feedbackText']);
 
-          // TODO: Why do we need to set the feedback text here?
-          UIController.SetFeedbackText(data['feedbackText']);
+            let appType = data['appType'];
+            let assessmentType = data['assessmentType'];
 
-          let appType = data['appType'];
-          let assessmentType = data['assessmentType'];
+            if (appType == 'survey') {
+              this.game = new Survey(this.dataURL, this.unityBridge);
+            } else if (appType == 'assessment') {
+              // Get and add all the audio assets to the cache model
 
-          if (appType == 'survey') {
-            this.game = new Survey(this.dataURL, this.unityBridge);
-          } else if (appType == 'assessment') {
-            // Get and add all the audio assets to the cache model
+              let buckets = data['buckets'];
 
-            let buckets = data['buckets'];
+              for (let i = 0; i < buckets.length; i++) {
+                for (let j = 0; j < buckets[i].items.length; j++) {
+                  let audioItemURL;
+                  // Use to lower case for the Lugandan data
+                  if (
+                    data['quizName'].includes('Luganda') ||
+                    data['quizName'].toLowerCase().includes('west african english')
+                  ) {
+                    audioItemURL = !GlobalFlags.isRespect ?
+                      `${assetURL}/` + this.dataURL + '/' + buckets[i].items[j].itemName.toLowerCase().trim() + '.mp3' :
+                      '/audio/' + this.dataURL + '/' + buckets[i].items[j].itemName.toLowerCase().trim() + '.mp3';
+                  } else {
+                    audioItemURL = !GlobalFlags.isRespect ?
+                    `${assetURL}/` + this.dataURL + '/' + buckets[i].items[j].itemName.trim() + '.mp3' :
+                    '/audio/' + this.dataURL + '/' + buckets[i].items[j].itemName.trim() + '.mp3';
+                  }
 
-            for (let i = 0; i < buckets.length; i++) {
-              for (let j = 0; j < buckets[i].items.length; j++) {
-                let audioItemURL;
-                // Use to lower case for the Lugandan data
-                if (
-                  data['quizName'].includes('Luganda') ||
-                  data['quizName'].toLowerCase().includes('west african english')
-                ) {
-                  audioItemURL = !GlobalFlags.isRespect ?
-                    `${assetURL}/` + this.dataURL + '/' + buckets[i].items[j].itemName.toLowerCase().trim() + '.mp3' :
-                    '/audio/' + this.dataURL + '/' + buckets[i].items[j].itemName.toLowerCase().trim() + '.mp3';
-                } else {
-                  audioItemURL = !GlobalFlags.isRespect ?
-                  `${assetURL}/` + this.dataURL + '/' + buckets[i].items[j].itemName.trim() + '.mp3' :
-                  '/audio/' + this.dataURL + '/' + buckets[i].items[j].itemName.trim() + '.mp3';
+                  this.cacheModel.addItemToAudioVisualResources(audioItemURL);
                 }
-
-                this.cacheModel.addItemToAudioVisualResources(audioItemURL);
               }
+
+              if(!GlobalFlags.isRespect) {
+                this.cacheModel.addItemToAudioVisualResources(`${assetURL}/` + this.dataURL + '/answer_feedback.mp3');
+                this.cacheModel.addItemToAudioVisualResources('/audioAsset/Correct.wav');
+              } else {
+                this.cacheModel.addItemToAudioVisualResources('/audio/' + this.dataURL + '/answer_feedback.mp3');
+                this.cacheModel.addItemToAudioVisualResources('/audioAsset/Correct.wav');
+              }
+
+              this.game = new Assessment(this.dataURL, this.unityBridge);
             }
 
-            if(!GlobalFlags.isRespect) {
-              this.cacheModel.addItemToAudioVisualResources(`${assetURL}/` + this.dataURL + '/answer_feedback.mp3');
-              this.cacheModel.addItemToAudioVisualResources('/audioAsset/Correct.wav');
-            } else {
-              this.cacheModel.addItemToAudioVisualResources('/audio/' + this.dataURL + '/answer_feedback.mp3');
-              this.cacheModel.addItemToAudioVisualResources('/audioAsset/Correct.wav');
+            this.game.unityBridge = this.unityBridge;
+
+            AnalyticsEvents.setUuid(getUUID(), getUserSource());
+            AnalyticsEvents.linkAnalytics(this.analytics, this.dataURL);
+            AnalyticsEvents.setAssessmentType(assessmentType);
+            contentVersion = data['contentVersion'];
+            AnalyticsEvents.sendInit(appVersion, data['contentVersion']);
+
+            if (this.game) {
+              this.game.Run(this);
+              console.log('Game loaded successfully.');
             }
-
-            this.game = new Assessment(this.dataURL, this.unityBridge);
-          }
-
-          this.game.unityBridge = this.unityBridge;
-
-          AnalyticsEvents.setUuid(getUUID(), getUserSource());
-          AnalyticsEvents.linkAnalytics(this.analytics, this.dataURL);
-          AnalyticsEvents.setAssessmentType(assessmentType);
-          contentVersion = data['contentVersion'];
-          AnalyticsEvents.sendInit(appVersion, data['contentVersion']);
-          // this.cacheModel.setAppName(this.cacheModel.appName + ':' + data["contentVersion"]);
-
-          if (this.game) {
-            this.game.Run(this);
-          }
-        });
+          });
+        } catch (error) {
+          console.error('Error loading game:', error);
+        }
 
         // --- Respect mode logic here ---
         if (!GlobalFlags.isRespect) {
-          console.warn("--------------------------------Respect mode enabled. Simulating fake loading progress--------------------------------");
           this.simulateFakeCachingProgress(this.lang);
         } else {
-          console.log("----------------------------------Respect mode disabled. Registering Workbox----------------------------------");
           await this.registerServiceWorker(this.game, this.dataURL);
         }
       })();
@@ -192,31 +180,22 @@ private simulateFakeCachingProgress(lang: string) {
 }
 
   async registerServiceWorker(game: BaseQuiz, dataURL: string = '') {
-    console.log('Registering service worker...');
-
     if ('serviceWorker' in navigator) {
       let wb = new Workbox('./sw.js', {});
 
       wb.register()
         .then((registration) => {
-          console.log('Service worker registered!');
           this.handleServiceWorkerRegistation(registration);
         })
         .catch((err) => {
-          console.log('Service worker registration failed: ' + err);
         });
 
       navigator.serviceWorker.addEventListener('message', handleServiceWorkerMessage);
 
       await navigator.serviceWorker.ready;
 
-      console.log('Cache Model: ');
-      console.log(this.cacheModel);
-
       // We need to check if there's a new version of the content file and in that case
       // remove the localStorage content name and version value
-
-      console.log('Checking for content version updates...' + dataURL);
 
       fetch(this.cacheModel.contentFilePath + '?cache-bust=' + new Date().getTime(), {
         method: 'GET',
@@ -233,13 +212,11 @@ private simulateFakeCachingProgress(lang: string) {
           }
           const newContentFileData = await response.json();
           const aheadContentVersion = newContentFileData['contentVersion'];
-          console.log('No Cache Content version: ' + aheadContentVersion);
 
           // We need to check here for the content version updates
           // If there's a new content version, we need to remove the cached content and reload
           // We are comparing here the contentVersion with the aheadContentVersion
           if (aheadContentVersion && contentVersion != aheadContentVersion) {
-            console.log('Content version mismatch! Reloading...');
             localStorage.removeItem(this.cacheModel.appName);
             // Clear the cache for tht particular content
             caches.delete(this.cacheModel.appName);
@@ -251,7 +228,6 @@ private simulateFakeCachingProgress(lang: string) {
         });
 
       if (localStorage.getItem(this.cacheModel.appName) == null) {
-        console.log('Caching!' + this.cacheModel.appName);
         loadingScreen!.style.display = 'flex';
         broadcastChannel.postMessage({
           command: 'Cache',
@@ -268,7 +244,6 @@ private simulateFakeCachingProgress(lang: string) {
       }
 
       broadcastChannel.onmessage = (event) => {
-        console.log(event.data.command + ' received from service worker!');
         if (event.data.command == 'Activated' && localStorage.getItem(this.cacheModel.appName) == null) {
           broadcastChannel.postMessage({
             command: 'Cache',
@@ -278,8 +253,6 @@ private simulateFakeCachingProgress(lang: string) {
           });
         }
       };
-    } else {
-      console.warn('Service workers are not supported in this browser.');
     }
   }
 
@@ -290,7 +263,6 @@ private simulateFakeCachingProgress(lang: string) {
         value: this.lang,
       });
     } catch (err) {
-      console.log('Service worker registration failed: ' + err);
     }
   }
 
@@ -307,14 +279,12 @@ function handleServiceWorkerMessage(event): void {
     handleLoadingMessage(event, progressValue);
   }
   if (event.data.msg == 'UpdateFound') {
-    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>.,update Found');
     handleUpdateFoundMessage();
   }
 }
 
 function handleLoadingMessage(event, progressValue): void {
   const lessonId = getDataFile();
-  console.log('Lesson ID:', lessonId);
 
   const bookName =
     event?.data?.data?.bookName ||
@@ -332,7 +302,6 @@ function handleLoadingMessage(event, progressValue): void {
     }, 1500);
     // add book with a name to local storage as cached
     localStorage.setItem(bookName, 'true');
-    console.log('Cached book-------------------: ' + bookName);
     readLanguageDataFromCacheAndNotifyAndroidApp(bookName);
   }
 }
