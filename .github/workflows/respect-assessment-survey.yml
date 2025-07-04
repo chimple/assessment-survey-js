@@ -3,7 +3,7 @@ name: Respect Assessment Survey Hosting
 on:
   push:
     branches:
-      - RESPECTify
+      - RESPECTify-prod
 
 jobs:
   build:
