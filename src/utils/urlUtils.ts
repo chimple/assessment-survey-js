@@ -28,14 +28,31 @@ export function getUserSource(): string {
   return nuuid;
 }
 
+const validLessons = [
+  'bangla-lettersounds',
+  'bangla-sightwords',
+  'french-lettersounds',
+  'french-sightwords',
+  'hausa-lettersounds',
+  'hausa-sightwords',
+  'hindi-lettersounds',
+  'luganda-lettersounds',
+  'nepalese-lettersounds',
+  'pashto-lettersounds',
+  'survey-zulu',
+  'ukrainian-lettersounds',
+  'west-african-english-lettersounds',
+  'west-african-sightwords',
+  'zulu-lettersounds'
+];
+
 export function getDataFile(): string {
   const pathParams = getPathName();
-  var data = pathParams.get('lesson_id');
-  if (data == undefined) {
-    data = 'zulu-lettersounds';
-    //data = "survey-zulu";
+  var data = pathParams.get('lesson_id') != null ? pathParams.get('lesson_id').toLowerCase() : null;
+  if (data && validLessons.includes(data)) {
+    return data;
   }
-  return data;
+  return 'zulu-lettersounds';
 }
 
 function getPathName() {
